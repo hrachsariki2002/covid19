@@ -1,0 +1,1030 @@
+---
+title: "Comparative analysis of COVID-19 in Armenia and top 3 countries according to wsj.com"
+author: "Hrach Khachatryan"
+date: "2023-08-29"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include=FALSE, echo = FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo = FALSE, message=FALSE}
+library(coronavirus)
+library(ggplot2)
+library(dplyr)
+library(plotly)
+library(ggpubr)
+library(tidyr)
+library(patchwork)
+library(scales)
+data("coronavirus")
+current_countries <- c("Taiwan*", "Liberia", "New Zealand", "Armenia")
+arm_point <- 0
+tw_point <- 0
+lib_point <- 0
+nz_point <- 0
+```
+
+![](images/covid.jpeg)
+
+Image source:
+https://rb.gy/qbztj
+
+The COVID-19 pandemic was officially a cause of international concern
+according to WHO on January 30, 2020; and it was officially stated that
+the pandemic was over on May 5 2023. During the course of these three
+years, probably all of the countries on earth had to go through major
+changes in their daily routines and how things are done in general to
+tackle the health hazard COVID-19 could be and was to ensure the safety
+and well being of the population. Various methods and vaccines have been
+implemented by individual countries, one supported another, yet people
+still try to look back at what happened and take the most out of it to
+learn and be prepared for similar pandemics in the future. That is why I
+decided to compare several countries, what happened to them under the
+pandemic during the course of these three years, what action they have
+taken and what results those actions yielded. Now the question is: what
+countries to choose for comparative analysis? I have decided to use the
+categorization and raking from the following article for this analysis:
+<https://www.wsj.com/articles/which-countries-have-responded-best-to-covid-19-11609516800>
+I decided to use this particular article because it just does not rank
+countries from the best one to the worst in plain manner, but rather it
+has its best countries nominated for different categories. Here are the
+the first three countries I have picked based on the article and their
+categorization: 1. Best at early action: Taiwan 2. Best at learning from
+recent epidemics: Liberia 3. Best at crushing the curve: New Zealand. Now, it is important to note that the article was published on Jan 1, 2021. And a lot has changed after that, so we will also see whether the rankings and categorization were cloes to reality till the beginning of 2023 or if anything changed. The
+fourth one will be Armenia, since I am from Armenia and would like to
+see the difference between Armenia and above mentioned countries. I will
+use the following data: <https://github.com/RamiKrispin/coronavirus> The
+raw data pulled and arranged by the Johns Hopkins University Center for
+Systems Science and Engineering (JHU CCSE). Another question is how the comparative analysis will be conducted. The paper will go over the following aspects to complete the comparative analysis:
+1. Population of each country (points assigned to each country based on this)
+2. Proportion/total amount of confirmed COVID-19 cases in each country from 2020 to 2023 (points assigned to each country based on this)
+3. Proportion/total amount of COVID-19 death cases in each country from 2020 to 2023 (points assigned to each country based on this)
+4. Proportion/total amount of COVID-19 recovery cases in each country from 2020 to 2023 (points assigned to each country based on this)
+5. Number of confirmed COVID-19 cases at each point of time over the course of 2020-2023 for each country
+6. Number of COVID-19 death cases at each point of time over the course of 2020-2023 for each country
+7. Number of COVID-19 recovery cases at each point of time over the course of 2020-2023 for each country
+8. Comparative time series graph including points 5, 6 and 7 for all countries altogether
+9. Amount of dose vaccines administered at each point of time over the course of 2020-2023 for each country
+10. Comparative time series graph for the amount of dose vaccines administered at each point of time over the course of 2020-2023 for all countries altogether (points assigned to each country based on this)
+11. Amount of people that received at least one dose of vaccine at each point of time over the course of 2020-2023 for each country
+12. Comparative time series graph for the amount of people that received at least one does of vaccine at each point of time over the course of 2020-2023 for all countries altogether (points assigned to each country based on this)
+13. Proportion of active/death/recovery cases at each point of time over the course of 2020-2023 for each country (points assigned to each country based on this)
+
+
+Population: Let's quickly go over the population of each country since
+it plays an important role in how COVID-19 is handled by the country.
+More movement, more people interacting with each other, therfore a
+higher risk of spreading the virus.
+
+```{r echo = FALSE, message=FALSE}
+covid19_vaccine_current <- covid19_vaccine %>%
+  filter(country_region %in% current_countries)
+
+
+current_countries_pop <- as.data.frame(cbind(unique(covid19_vaccine_current$country_region),
+                               unique(covid19_vaccine_current$population)))
+colnames(current_countries_pop) <- c("country", "population")
+current_countries_pop$population <- as.numeric(current_countries_pop$population)
+
+ggplot() + geom_bar(data = current_countries_pop,
+                    aes(country, population, fill = country), stat = "identity") +
+  scale_y_continuous(labels = comma_format()) +
+  scale_fill_manual(values = c("red", "green", "purple", "blue")) +
+  labs(x = "Country", y = "Population of the country", fill = "Country",
+       title = "The population of each of the 4 countries")
+
+```
+
+As we see from the bar plot, we have the following population
+ranking: 1. Taiwan 2. Liberia 3. New Zealand 4. Armenia So from the
+population standpoint, Armenia has it easier than the other three, since
+less people live there, therefore the risk of spreading the virus is not
+as high.
+
+Here are the countries and their populations:
+Countries:
+
+Now let's look at COVID-19 confirmed, death and recovery cases in each
+of these countries:
+
+```{r echo = FALSE, message=FALSE}
+country_pop <- as.data.frame(rbind(current_countries, unique(covid19_vaccine_current$population)))
+rownames(country_pop) <- c("Country", "Population")
+colnames(country_pop) <- NULL
+print(country_pop)
+```
+
+Total population:
+```{r echo = FALSE, message=FALSE}
+sum(4822233, 23816775, 2963234, 5057677)
+```
+
+Let's assign appropriate points to each country based on the population:<br>
+Armenia:
+```{r echo = FALSE, message=FALSE}
+arm_point <- arm_point + (100 * 2963234) / 36659919
+(100 * 2963234) / 36659919
+```
+
+Taiwan:
+```{r echo = FALSE, message=FALSE}
+tw_point <- tw_point + (100 * 23816775) / 36659919
+(100 * 23816775) / 36659919
+```
+
+Liberia:
+```{r echo = FALSE, message=FALSE}
+lib_point <- lib_point + (100 * 5057677) / 36659919
+(100 * 5057677) / 36659919
+```
+
+New Zealand:
+```{r echo = FALSE, message=FALSE}
+nz_point <- nz_point + (100 * 4822233) / 36659919
+(100 * 4822233) / 36659919
+```
+
+COVID-19 confirmed cases:
+
+```{r echo = FALSE, message=FALSE}
+current_countries <- c("Taiwan*", "Liberia", "New Zealand", "Armenia")
+
+conf_df <- coronavirus %>% 
+  filter(type == "confirmed" & (country %in% current_countries)) %>%
+  group_by(country) %>%
+  summarise(total_cases = sum(cases)) %>%
+  arrange(-total_cases) %>%
+  mutate(parents = "Confirmed") %>%
+  ungroup() 
+
+plot_ly(data = conf_df,
+        type= "treemap",
+        values = ~total_cases,
+        labels= ~ country,
+        parents=  ~parents,
+        domain = list(column=0),
+        name = "Confirmed",
+        textinfo="label+value+percent parent")
+```
+
+Considering the fact that Liberia was the second largest by population
+and there are so few confirmed COVID-19 cases (you cannot even see
+Liberia in the treemap), it is intuitive to conclude that Liberia was
+not attentive enough when recording the confirmed cases or the citizens
+were not responsible enough to report. Armenia, with its small
+population, did a relatively good job at reporting the confirmed the
+cases. The rest seem to have acted properly.
+
+Let's assign the points accordingly:
+Armenia - 4
+Taiwan - 79
+Liberia - 0
+New Zealand - 18
+
+```{r echo = FALSE, message=FALSE}
+arm_point <- arm_point + 4
+tw_point <- tw_point + 79
+lib_point <- lib_point + 0
+nz_point <- nz_point + 18
+```
+
+COVID-19 death cases:
+
+```{r echo = FALSE, message=FALSE}
+
+death_df <- coronavirus %>% 
+  filter(type == "death" & (country %in% current_countries)) %>%
+  group_by(country) %>%
+  summarise(total_cases = sum(cases)) %>%
+  arrange(-total_cases) %>%
+  mutate(parents = "Death") %>%
+  ungroup() 
+
+plot_ly(data = death_df,
+        type= "treemap",
+        values = ~total_cases,
+        labels= ~ country,
+        parents=  ~parents,
+        domain = list(column=0),
+        name = "Confirmed",
+        textinfo="label+value+percent parent")
+```
+
+From what we see, we can conclude that Liberia tackled the issue of
+taking care of the COVID patients properly since it has the lowest
+amount of COVID death cases (amounting to just 1% of the total amount of
+death cases in the four countries), even though it is the second largest
+by population. The case of Taiwan is understandable, considering the
+fact that it has the largest population out of all these four countries.
+New Zealand seems to have performed well too. However, Armenia did not
+do enough to ensure that the death cases are low. It is the last one by
+population from the four countries, however by amount of death cases it
+is the second after Taiwan (amounting to 30% of the total amount of
+death cases in the four countries), a country that has population almost
+eight times bigger than its own!
+
+Let's assign the points accordingly:
+Armenia - 30
+Taiwan - 60
+Liberia - 1
+New Zealand - 9
+
+```{r echo = FALSE, message=FALSE}
+arm_point <- arm_point + 30
+tw_point <- tw_point + 60
+lib_point <- lib_point + 1
+nz_point <- nz_point + 9
+```
+
+COVID-19 recovery cases:
+
+```{r echo = FALSE, message=FALSE}
+recovery_df <- coronavirus %>% 
+  filter(type == "recovery" & (country %in% current_countries)) %>%
+  group_by(country) %>%
+  summarise(total_cases = sum(cases)) %>%
+  arrange(-total_cases) %>%
+  mutate(parents = "Recovery") %>%
+  ungroup() 
+
+plot_ly(data = recovery_df,
+        type= "treemap",
+        values = ~total_cases,
+        labels= ~ country,
+        parents=  ~parents,
+        domain = list(column=0),
+        name = "Recovery",
+        textinfo="label+value+percent parent")
+```
+
+From the graph we can see that despite the fact that Armenia was the
+second by death cases, it still performed the best out of all four
+countries from the recovery standpoint. About 220000 recovery cases
+(amounting to 92% of the total amount of recovery cases in the four
+countries)! The rest had very low recovery cases, low especially for
+Taiwan, considering its large population.
+
+Let's assign the points accordingly:
+Armenia - 92
+Taiwan - 5
+Liberia - 1
+New Zealand - 2
+
+```{r echo = FALSE, message=FALSE}
+arm_point <- arm_point + 92
+tw_point <- tw_point + 5
+lib_point <- lib_point + 1
+nz_point <- nz_point + 2
+```
+
+
+Now let's look at how each country did in terms of COVID-19 confirmed,
+death and recovery cases over the entire course of 2020-2023 and then
+compare them: Armenia:
+
+```{r echo = FALSE, message=FALSE}
+coronavirus_arm_confirmed <- coronavirus %>%
+  filter(country == "Armenia" & type == "confirmed") %>%
+  group_by(date)
+
+coronavirus_tw_confirmed <- coronavirus %>%
+  filter(country == "Taiwan*" & type == "confirmed") %>%
+  group_by(date)
+
+coronavirus_lb_confirmed <- coronavirus %>%
+  filter(country == "Liberia" & type == "confirmed") %>%
+  group_by(date)
+
+coronavirus_nz_confirmed <- coronavirus %>%
+  filter(country == "New Zealand" & type == "confirmed") %>%
+  group_by(date)
+
+coronavirus_arm_death <- coronavirus %>%
+  filter(country == "Armenia" & type == "death") %>%
+  group_by(date)
+
+coronavirus_tw_death <- coronavirus %>%
+  filter(country == "Taiwan*" & type == "death") %>%
+  group_by(date)
+
+coronavirus_lb_death <- coronavirus %>%
+  filter(country == "Liberia" & type == "death") %>%
+  group_by(date)
+
+coronavirus_nz_death <- coronavirus %>%
+  filter(country == "New Zealand" & type == "death") %>%
+  group_by(date)
+
+coronavirus_arm_recovery<- coronavirus %>%
+  filter(country == "Armenia" & type == "recovery") %>%
+  group_by(date)
+
+coronavirus_tw_recovery <- coronavirus %>%
+  filter(country == "Taiwan*" & type == "recovery") %>%
+  group_by(date)
+
+coronavirus_lb_recovery <- coronavirus %>%
+  filter(country == "Liberia" & type == "recovery") %>%
+  group_by(date)
+
+coronavirus_nz_recovery <- coronavirus %>%
+  filter(country == "New Zealand" & type == "recovery") %>%
+  group_by(date)
+
+
+
+ggplot() + geom_line(data = coronavirus_arm_confirmed,
+                     aes(x = date,
+                         y= cases), color="red") +
+  labs(x = "Date", y = "Number of confirmed COVID cases",
+       title = "Number of confirmed COVID cases in Armenia",
+       subtitle = "Over the course of 2020-2023")
+
+ggplot() + geom_line(data = coronavirus_arm_death,
+                     aes(x = date,
+                         y= cases), color="pink") +
+  labs(x = "Date", y = "Number of COVID death cases",
+       title = "Number of COVID death cases in Armenia",
+       subtitle = "Over the course of 2020-2023")
+
+
+ggplot() + geom_line(data = coronavirus_arm_recovery,
+                     aes(x = date,
+                         y= cases), color="orange") +
+  labs(x = "Date", y = "Number of COVID recovery cases",
+       title = "Number of COVID recovery cases in Armenia",
+       subtitle = "Over the course of 2020-2023")
+
+
+```
+
+As we can see Armenia has had consistent periods of ups and downs over
+the course of these three years when it comes to the amount of confirmed
+COVID-19 cases. The highest and at the same time sharpest spike was by
+the beginning of 2022. It is important to note that the second spike on
+the graph must have been one of the hardest to tackle for Armenia, since
+it took place around the end of 2020, during which period Armenia was
+also facing a war and its consequences. We can see that the curves for
+confirmed and death cases coincide. Most of the death cases occured in
+the period between the end of 2020 and the beginning of 2022. As we will
+see below, while the death and confirmed cases spikes are densley
+concentrated in certain small period of time for the other countries, in
+case of Armenia, these cases were relatively evenly distributed among
+several periods of time, which made the hit done by COVID lengthy but
+more bearable in this case. The curve for the recovery cases is mostly
+close to being flat. It has a sharp and high spike by the end of 2020.
+
+Taiwan:
+
+```{r echo = FALSE, message=FALSE}
+ggplot() + geom_line(data = coronavirus_tw_confirmed,
+                     aes(x = date,
+                         y= cases), color="blue") +
+  labs(x = "Date", y = "Number of confirmed COVID cases",
+       title = "Number of confirmed COVID cases in Taiwan",
+       subtitle = "Over the course of 2020-2023") + scale_y_continuous(labels = comma)
+
+ggplot() + geom_line(data = coronavirus_tw_death,
+                     aes(x = date,
+                         y= cases), color="cyan") +
+  labs(x = "Date", y = "Number of COVID death cases",
+       title = "Number of COVID death cases in Taiwan",
+       subtitle = "Over the course of 2020-2023")
+
+ggplot() + geom_line(data = coronavirus_tw_recovery,
+                     aes(x = date,
+                         y= cases), color="skyblue") +
+  labs(x = "Date", y = "Number of COVID recovery cases",
+       title = "Number of COVID recovery cases in Taiwan",
+       subtitle = "Over the course of 2020-2023")
+
+
+```
+
+We see that the amount of confirmed COVID cases in Taiwan stayed
+relatively constant over the course of 2020-2022 and then there are are
+three different spikes starting from close to the middle of 2022 and
+ending by the beginning of 2023. As we see these spikes coincide with
+the ones on the death case curve. We can conclude that most of the death
+cases in Taiwan took place during this particular period of time. The
+recovery line is similar to the one in Armenia, mostly close to being
+flat but with one sharp and high spike. Even the numbers are close to
+each other in both cases, however if a particular amount of recovery
+cases is a lot for Armenia, then it might not be for Taiwan, considering
+the difference in the size of population of the two countries.
+
+Liberia:
+
+```{r echo = FALSE, message=FALSE}
+ggplot() + geom_line(data = coronavirus_lb_confirmed,
+                     aes(x = date,
+                         y= cases), color="green") +
+  labs(x = "Date", y = "Number of confirmed COVID cases",
+       title = "Number of confirmed COVID cases in Liberia",
+       subtitle = "Over the course of 2020-2023")
+
+ggplot() + geom_line(data = coronavirus_lb_death,
+                     aes(x = date,
+                         y= cases), color="darkgreen") +
+  labs(x = "Date", y = "Number of COVID death cases",
+       title = "Number of COVID death cases in Liberia",
+       subtitle = "Over the course of 2020-2023")
+
+ggplot() + geom_line(data = coronavirus_lb_recovery,
+                     aes(x = date,
+                         y= cases), color="lightgreen") +
+  labs(x = "Date", y = "Number of COVID recovery cases",
+       title = "Number of COVID recovery cases in Liberia",
+       subtitle = "Over the course of 2020-2023")
+
+```
+
+Liberia's case is unique compared to the previous two cases. There is no
+correspondence between any of the curves whatsoever. The only thing that
+is close to coinciding is couple of spikes in the middle of 2021 on the
+curves of confirmed and death cases. The recovery cases curve looks a
+bit different than in the case of the previous two countries. There are
+more spikes, however, if we look at the scale we can see that it does
+not mean that there were more recovery cases in Liberia than in the
+previous countries. Actually, as mentioned above, Liberia did the worst
+from the recovery standpoint. Also a note: the data in case of Liberia
+seems to be incomplete or with some errors since as you can see there is
+a negative spike on the confirmed cases curve.
+
+New Zealand:
+
+```{r echo = FALSE, message=FALSE}
+ggplot() + geom_line(data = coronavirus_nz_confirmed,
+                     aes(x = date,
+                         y= cases), color="purple") +
+  labs(x = "Date", y = "Number of confirmed COVID cases",
+       title = "Number of confirmed COVID cases in New Zealand",
+       subtitle = "Over the course of 2020-2023")
+
+ggplot() + geom_line(data = coronavirus_nz_death,
+                     aes(x = date,
+                         y= cases), color="violet") +
+  labs(x = "Date", y = "Number of COVID death cases",
+       title = "Number of COVID death cases in New Zealand",
+       subtitle = "Over the course of 2020-2023")
+ggplot() + geom_line(data = coronavirus_nz_recovery,
+                     aes(x = date,
+                         y= cases), color="magenta") +
+  labs(x = "Date", y = "Number of COVID recovery cases",
+       title = "Number of COVID recovery cases in New Zealand",
+       subtitle = "Over the course of 2020-2023")
+
+
+```
+
+As in the first two cases we see that in case of New Zealand the curves
+for confirmed cases and death cases pretty much coincide as well. And
+most of the death cases in New Zealand occurred pretty much in the same
+period of time as in Taiwan. Most of the recovery cases occurred in the
+first part of the pandemic, from the middle of the first half of 2020
+till about the beginning of the second half of 2021.
+
+Now let's look at the same curves but compare the countries to each
+other:
+
+```{r echo = FALSE, message=FALSE}
+ggplot() + geom_line(data = coronavirus_arm_confirmed,
+                     aes(x = date,
+                         y= cases), color="red") +
+  geom_line(data = coronavirus_tw_confirmed,
+            aes(x = date,
+                y= cases), color="blue") +
+  geom_line(data = coronavirus_lb_confirmed,
+            aes(x = date,
+                y= cases), color="green") +
+  geom_line(data = coronavirus_nz_confirmed,
+            aes(x = date,
+                y= cases), color="purple") +
+  labs(x = "Date", y = "Number of confirmed COVID cases",
+       title = "Number of confirmed COVID cases in 4 countries",
+       subtitle = "Over the course of 2020-2023") +
+  scale_y_continuous(labels = comma)
+
+ggplot() + geom_line(data = coronavirus_arm_death,
+                     aes(x = date,
+                         y= cases), color="red") +
+  geom_line(data = coronavirus_tw_death,
+            aes(x = date,
+                y= cases), color="blue") +
+  geom_line(data = coronavirus_lb_death,
+            aes(x = date,
+                y= cases), color="green") +
+  geom_line(data = coronavirus_nz_death,
+            aes(x = date,
+                y= cases), color="purple") +
+  labs(x = "Date", y = "Number of COVID death cases",
+       title = "Number of COVID death cases in 4 countries",
+       subtitle = "Over the course of 2020-2023")
+
+ggplot() + geom_line(data = coronavirus_arm_recovery,
+                     aes(x = date,
+                         y= cases), color="red") +
+  geom_line(data = coronavirus_tw_recovery,
+            aes(x = date,
+                y= cases), color="blue") +
+  geom_line(data = coronavirus_lb_recovery,
+            aes(x = date,
+                y= cases), color="green") +
+  geom_line(data = coronavirus_nz_recovery,
+            aes(x = date,
+                y= cases), color="purple") +
+  labs(x = "Date", y = "Number of COVID recovery cases",
+       title = "Number of COVID recovery cases in 4 countries",
+       subtitle = "Over the course of 2020-2023")
+
+```
+
+Nothing here is new since we have discussed this previously, but these
+comparative curves are a good visualization to get the whole picture of
+what happened. As we can see from the first curve and as was shown
+previously, Taiwan had the biggest amount of confirmed cases. Most of
+the confirmed cases in Taiwan occured in the period between the end of
+the first half of 2022 and the beginning of 2023. Most of the death
+cases in Taiwan occurred during the exact same period as we can see from
+the second curve. The second by the total number of confirmed cases and
+death cases is New Zealand. The spikes in confirmed and death cases in
+New Zealand occured between the middle of the first half of 2022 and the
+beginning of 2023. We can see that the total number of confirmed and
+recovery cases in Liberia is so low that we cannot even see its curve on
+the first and last graphs. There are some death cases though and we can
+see the spike on the second graph. Again these three graphs confirm that
+Armenia did the best out of all these four countries. It is only the
+second lowest after Liberia when it comes to the total number of
+confirmed and death cases and has the highest rate of recovery cases.
+Nothing new that we have not talked about, however I wanted to have this
+vivid visualization here as well.
+
+Now let's look at the dynamics of adiminstering vaccine in each country:<br>
+Armenia:
+
+```{r echo = FALSE, message=FALSE}
+
+covid19_vaccine_current <- covid19_vaccine %>%
+  filter(country_region %in% current_countries)
+
+covid19_vaccine_current %>%
+  filter(country_region == "Armenia") %>%
+ggplot() + geom_line(aes(x = date, y = doses_admin), color="red") +
+  labs(x = "Date", y = "Doses of vaccine administered",
+       title = "Doses of vaccine administered in Armenia",
+       subtitle = "Over the course of 2020-2023")
+
+
+```
+
+We can see that the most of the growth in the amount of administered
+vaccines can be attributed to the period during which there were most of
+the spikes in the amount of confirmed and death cases in Armenia. After
+that period the amount stayed constant. It is interesting to note that
+the amount of doses administered increased with breaks and not
+constantly. From what we can see the curve looks like stairs, meaning
+the amount of administered vaccine was increased, stayed the same amount
+for a while, then increased again and then the whole process repeated
+again and again until the middle of first half of 2022.
+
+Taiwan:
+
+```{r echo = FALSE, message=FALSE}
+covid19_vaccine_current %>%
+  filter(country_region == "Taiwan*") %>%
+  ggplot() + geom_line(aes(x = date, y = doses_admin), color="blue") +
+  labs(x = "Date", y = "Doses of vaccine administered",
+       title = "Doses of vaccine administered in Taiwan",
+       subtitle = "Over the course of 2020-2023") +
+  scale_y_continuous(labels = comma)
+```
+
+In case of Taiwan we can see that the doses of administered vaccine kept
+going up throughout the whole period from 2020-2023. When in case of
+Armenia the amount of does stayed constant by the end, it still kept
+increasing in case of Taiwan, slower than by the beginning, but still
+kept increasing. And it is intuitive, since the biggest spikes of
+confirmed and death cases in Taiwan occurred as it was said before
+between the end of the first half of 2022 and the beginning of 2023.
+That is why the amount of administered doses of vaccine kept increasing
+and did not even stay a constant for a small period of time.
+
+Liberia:
+
+```{r echo = FALSE, message=FALSE}
+covid19_vaccine_current %>%
+  filter(country_region == "Liberia") %>%
+  ggplot() + geom_line(aes(x = date, y = doses_admin), color="green") +
+  labs(x = "Date", y = "Doses of vaccine administered",
+       title = "Doses of vaccine administered in Liberia",
+       subtitle = "Over the course of 2020-2023") +
+  scale_y_continuous(labels = comma)
+```
+
+We can see that Liberia's graph is similar to the one of Armenia. Here
+too, they took breaks when increasing the amount of administered doses
+of vaccine. However, in case of Armenia, the shape of the curve was
+intuitively understandable since most of the increase in the amount of
+administered doses of vaccine in Armenia happened during the same period
+in which there was an increase in confirmed and death cases. However in
+case of Liberia, I do not see any logical pattern and reasoning behind
+the increase in the amount of dosage and the breaks they took from
+increasing it.
+
+New Zealand:
+
+```{r echo = FALSE, message=FALSE}
+covid19_vaccine_current %>%
+  filter(country_region == "New Zealand") %>%
+  ggplot() + geom_line(aes(x = date, y = doses_admin), color="purple") +
+  labs(x = "Date", y = "Doses of vaccine administered",
+       title = "Doses of vaccine administered in New Zealand",
+       subtitle = "Over the course of 2020-2023") +
+  scale_y_continuous(labels = comma)
+
+```
+
+New Zealand's graph is similar to the one of Taiwan, however by middle
+of the first half of 2022 the curve started tending towards a constant
+and I am assuming because they thought that amount of administered
+vaccine dose was enough to tackle the issue.
+
+Overall, if we look at these curves and compare them to the ones of
+recovery cases for each country, we can see that the periods of highest
+dosages do not coincide with the periods of highest amount of
+recoveries. For example, in case of Armenia, the highest spike on the
+recovery curve was by the end of 2020, however if we look at the dosage
+curve, we can see that the end of 2020 is when they just started
+gradually increasing the amount of administered vaccine dose.
+
+Now, let's look at the comparative graph:
+
+```{r echo = FALSE, message=FALSE}
+ggplot() + geom_line(data = (covid19_vaccine_current %>%
+                               filter(country_region == "Armenia")), aes(x = date, y = doses_admin), color="red") +
+  geom_line(data = (covid19_vaccine_current %>% filter(country_region == "Taiwan*")), aes(x = date, y = doses_admin), color="blue") +
+  geom_line(data = (covid19_vaccine_current %>% filter(country_region == "Liberia")), aes(x = date, y = doses_admin), color="green") +
+  geom_line(data = (covid19_vaccine_current %>% filter(country_region == "New Zealand")), aes(x = date, y = doses_admin), color="purple") +
+  scale_y_continuous(labels = comma) +
+  labs(x = "Date", y = "Doses of vaccine administered",
+       title = "Doses of vaccine administered in 4 countries",
+       subtitle = "Over the course of 2020-2023")
+
+```
+
+As we can see, we can rank the four countries by the increase of
+administered vaccine dose in the following manner: 1. Taiwan 2. New
+Zealand 3. Liberia 4. Armenia However, even though Armenia is the last
+one in this case, it was the first by the amount of recovery cases,
+which I tend to connect to the fact that Armenia has the smallest
+population, which is in my opinion a guarantee of less exposure, less
+risk and slower dynamics for the spread of the virus. Taiwan was the
+second by the amount of recoveries after Armenia, which is reasonable,
+considering the increase that took place in the amount of vaccines
+administered over the course of 2020-2023.
+
+Total amount of doses of vaccine administered in Armenia:
+```{r echo = FALSE, message=FALSE}
+arm_dose <- covid19_vaccine_current %>%
+  filter(country_region == "Armenia")
+sum(arm_dose$doses_admin)
+
+```
+
+Total amount of doses of vaccine administered in Taiwan:
+```{r echo = FALSE, message=FALSE}
+tw_dose <- covid19_vaccine_current %>%
+  filter(country_region == "Taiwan*")
+sum(tw_dose$doses_admin)
+
+```
+
+Total amount of doses of vaccine administered in Liberia:
+```{r echo = FALSE, message=FALSE}
+lib_dose <- covid19_vaccine_current %>%
+  filter(country_region == "Liberia")
+sum(lib_dose$doses_admin)
+
+```
+
+Total amount of doses of vaccine administered in New Zealand:
+```{r echo = FALSE, message=FALSE}
+nz_dose <- covid19_vaccine_current %>%
+  filter(country_region == "New Zealand")
+sum(nz_dose$doses_admin)
+
+```
+
+Total amount of doses of vaccine administered in all countries altogether:
+```{r echo = FALSE, message=FALSE}
+sum(arm_dose$doses_admin) + sum(tw_dose$doses_admin) +
+  sum(lib_dose$doses_admin) + sum(nz_dose$doses_admin)
+```
+
+
+
+
+Let's assign the points accordingly:
+Armenia - `r ( sum(arm_dose$doses_admin ) * 100 ) / (sum(arm_dose$doses_admin) + sum(tw_dose$doses_admin) + sum(lib_dose$doses_admin) + sum(nz_dose$doses_admin))`
+Taiwan - `r ( sum(tw_dose$doses_admin ) * 100 ) / (sum(arm_dose$doses_admin) + sum(tw_dose$doses_admin) + sum(lib_dose$doses_admin) + sum(nz_dose$doses_admin))`
+Liberia - `r ( sum(lib_dose$doses_admin ) * 100 ) / (sum(arm_dose$doses_admin) + sum(tw_dose$doses_admin) + sum(lib_dose$doses_admin) + sum(nz_dose$doses_admin))`
+New Zealand - `r ( sum(nz_dose$doses_admin ) * 100 ) / (sum(arm_dose$doses_admin) + sum(tw_dose$doses_admin) + sum(lib_dose$doses_admin) + sum(nz_dose$doses_admin))`
+
+```{r echo = FALSE, message=FALSE}
+arm_point <- arm_point + ( sum(arm_dose$doses_admin ) * 100 ) / (sum(arm_dose$doses_admin) + sum(tw_dose$doses_admin) + sum(lib_dose$doses_admin) + sum(nz_dose$doses_admin))
+tw_point <- tw_point + ( sum(tw_dose$doses_admin ) * 100 ) / (sum(arm_dose$doses_admin) + sum(tw_dose$doses_admin) + sum(lib_dose$doses_admin) + sum(nz_dose$doses_admin))
+lib_point <- lib_point +( sum(lib_dose$doses_admin ) * 100 ) / (sum(arm_dose$doses_admin) + sum(tw_dose$doses_admin) + sum(lib_dose$doses_admin) + sum(nz_dose$doses_admin))
+nz_point <- nz_point + ( sum(nz_dose$doses_admin ) * 100 ) / (sum(arm_dose$doses_admin) + sum(tw_dose$doses_admin) + sum(lib_dose$doses_admin) + sum(nz_dose$doses_admin))
+```
+
+Below I am also living time series graphs for the amount of people with
+at least one dose over time for each country and one more with all
+countries together for comparative analysis. I am not going to comment
+much on this because the overall picture is quite similar if not the
+same as with the time series graphs for the amount of vaccine
+administered over time both for each country and for all countries
+together.
+
+```{r echo = FALSE, message=FALSE}
+covid19_vaccine_current %>%
+  filter(country_region == "Armenia") %>%
+  ggplot() + geom_line(aes(x = date, y = people_at_least_one_dose), color="red") +
+  labs(x = "Date", y = "Number of people that have received at least one dose of vaccine",
+       title = "Amount of people that have received at least one dose of vaccine in Armenia",
+       subtitle = "Over the course of 2020-2023") + scale_y_continuous(labels = comma)
+
+covid19_vaccine_current %>%
+  filter(country_region == "Taiwan*") %>%
+  ggplot() + geom_line(aes(x = date, y = people_at_least_one_dose), color="blue") +
+  labs(x = "Date", y = "Number of people that have received at least one dose of vaccine",
+       title = "Amount of people that have received at least one dose of vaccine in Taiwan",
+       subtitle = "Over the course of 2020-2023") + scale_y_continuous(labels = comma)
+
+covid19_vaccine_current %>%
+  filter(country_region == "Liberia") %>%
+  ggplot() + geom_line(aes(x = date, y = people_at_least_one_dose), color="green") +
+  labs(x = "Date", y = "Number of people that have received at least one dose of vaccine",
+       title = "Amount of people that have received at least one dose of vaccine in Liberia",
+       subtitle = "Over the course of 2020-2023") + scale_y_continuous(labels = comma)
+
+covid19_vaccine_current %>%
+  filter(country_region == "New Zealand") %>%
+  ggplot() + geom_line(aes(x = date, y = people_at_least_one_dose), color="purple") +
+  labs(x = "Date", y = "Number of people that have received at least one dose of vaccine",
+       title = "Amount of people that have received at least one dose of vaccine in New Zealand",
+       subtitle = "Over the course of 2020-2023") + scale_y_continuous(labels = comma)
+
+
+ggplot() + geom_line(data = (covid19_vaccine_current %>%
+                               filter(country_region == "Armenia")), aes(x = date, y = people_at_least_one_dose), color="red") +
+  geom_line(data = (covid19_vaccine_current %>% filter(country_region == "Taiwan*")), aes(x = date, y = people_at_least_one_dose), color="blue") +
+  geom_line(data = (covid19_vaccine_current %>% filter(country_region == "Liberia")), aes(x = date, y = people_at_least_one_dose), color="green") +
+  geom_line(data = (covid19_vaccine_current %>% filter(country_region == "New Zealand")), aes(x = date, y = people_at_least_one_dose), color="purple") +
+  scale_y_continuous(labels = comma) +
+    labs(x = "Date", y = "Number of people that have received at least one dose of vaccine",
+       title = "Amount of people that have received at least one dose of vaccine in 4 countries",
+       subtitle = "Over the course of 2020-2023")
+
+
+```
+To finalize, let us just look at the proportion of recovered, active and death cases in each country:<br>
+
+
+Total amount of people that received at least one shot of vaccine in Armenia:
+```{r echo = FALSE, message=FALSE}
+arm_one_dose <- covid19_vaccine_current %>%
+  filter(country_region == "Armenia")
+sum(arm_one_dose$people_at_least_one_dose)
+
+```
+
+Total amount of people that received at least one shot of vaccine in Taiwan:
+```{r echo = FALSE, message=FALSE}
+tw_one_dose <- covid19_vaccine_current %>%
+  filter(country_region == "Taiwan*")
+sum(tw_one_dose$people_at_least_one_dose)
+
+```
+
+Total amount of people that received at least one shot of vaccine in Liberia:
+```{r echo = FALSE, message=FALSE}
+lib_one_dose <- covid19_vaccine_current %>%
+  filter(country_region == "Liberia")
+sum(lib_one_dose$people_at_least_one_dose)
+
+```
+
+Total amount of people that received at least one shot of vaccine in New Zealand:
+```{r echo = FALSE, message=FALSE}
+nz_one_dose <- covid19_vaccine_current %>%
+  filter(country_region == "New Zealand")
+sum(nz_one_dose$people_at_least_one_dose)
+
+```
+
+Total amount of people that received at least one shot of vaccine in all countries altogether:
+```{r echo = FALSE, message=FALSE}
+sum(arm_one_dose$people_at_least_one_dose) + sum(tw_one_dose$people_at_least_one_dose) +
+  sum(lib_one_dose$people_at_least_one_dose) + sum(nz_one_dose$people_at_least_one_dose)
+```
+
+Let's assign the points accordingly:
+Armenia - `r ( sum(arm_one_dose$people_at_least_one_dose ) * 100 ) / (sum(arm_one_dose$people_at_least_one_dose) + sum(tw_one_dose$people_at_least_one_dose) + sum(lib_one_dose$people_at_least_one_dose) + sum(nz_one_dose$people_at_least_one_dose))`
+Taiwan - `r ( sum(tw_one_dose$people_at_least_one_dose ) * 100 ) / (sum(arm_one_dose$people_at_least_one_dose) + sum(tw_one_dose$people_at_least_one_dose) + sum(lib_one_dose$people_at_least_one_dose) + sum(nz_one_dose$people_at_least_one_dose))`
+Liberia - `r ( sum(lib_one_dose$people_at_least_one_dose ) * 100 ) / (sum(arm_one_dose$people_at_least_one_dose) + sum(tw_one_dose$people_at_least_one_dose) + sum(lib_one_dose$people_at_least_one_dose) + sum(nz_one_dose$people_at_least_one_dose))`
+New Zealand - `r ( sum(nz_one_dose$people_at_least_one_dose ) * 100 ) / (sum(arm_one_dose$people_at_least_one_dose) + sum(tw_one_dose$people_at_least_one_dose) + sum(lib_one_dose$people_at_least_one_dose) + sum(nz_one_dose$people_at_least_one_dose))`
+
+```{r echo = FALSE, message=FALSE}
+arm_point - arm_point + ( sum(arm_one_dose$people_at_least_one_dose ) * 100 ) / (sum(arm_one_dose$people_at_least_one_dose) + sum(tw_one_dose$people_at_least_one_dose) + sum(lib_one_dose$people_at_least_one_dose) + sum(nz_one_dose$people_at_least_one_dose))
+tw_point <- tw_point + ( sum(tw_one_dose$people_at_least_one_dose ) * 100 ) / (sum(arm_one_dose$people_at_least_one_dose) + sum(tw_one_dose$people_at_least_one_dose) + sum(lib_one_dose$people_at_least_one_dose) + sum(nz_one_dose$people_at_least_one_dose))
+lib_point <- lib_point + ( sum(lib_one_dose$people_at_least_one_dose ) * 100 ) / (sum(arm_one_dose$people_at_least_one_dose) + sum(tw_one_dose$people_at_least_one_dose) + sum(lib_one_dose$people_at_least_one_dose) + sum(nz_one_dose$people_at_least_one_dose))
+nz_point <- nz_point + ( sum(nz_one_dose$people_at_least_one_dose ) * 100 ) / (sum(arm_one_dose$people_at_least_one_dose) + sum(tw_one_dose$people_at_least_one_dose) + sum(lib_one_dose$people_at_least_one_dose) + sum(nz_one_dose$people_at_least_one_dose))
+```
+
+
+Armenia:
+```{r echo = FALSE, message=FALSE}
+arm_summary <- coronavirus %>% 
+  filter(country == "Armenia") %>%
+  group_by(type, date) %>%
+  summarise(total_cases = sum(cases)) %>%
+  pivot_wider(names_from = type, values_from = total_cases) %>%
+  arrange(date) %>%
+  mutate(active = confirmed - death - recovery) %>%
+  mutate(active_total = cumsum(active),
+         recovered_total = cumsum(recovery),
+         death_total = cumsum(death))
+arm_summary %>%
+  plot_ly(x = ~ date,
+          y = ~ active_total,
+          name = 'Active', 
+          fillcolor = '#1f77b4',
+          type = 'scatter',
+          mode = 'none', 
+          stackgroup = 'one') %>%
+  add_trace(y = ~ death_total, 
+            name = "Death",
+            fillcolor = '#E41317') %>%
+  add_trace(y = ~recovered_total, 
+            name = 'Recovered', 
+            fillcolor = 'forestgreen') %>%
+  layout(title = "Distribution of Covid19 Cases in Armenia",
+         legend = list(x = 0.1, y = 0.9),
+         yaxis = list(title = "Number of Cases"),
+         xaxis = list(title = "Source: Johns Hopkins University Center for Systems Science and Engineering"))
+```
+As we see Armenia has done a good job since the proportion of death cases is the smallest and the proportion of recovery cases are the biggest.
+
+The total amount of active cases in Armenia: `r sum(arm_summary$active_total)`
+
+Taiwan:
+```{r echo = FALSE, message=FALSE}
+tw_summary <- coronavirus %>% 
+  filter(country == "Taiwan*") %>%
+  group_by(type, date) %>%
+  summarise(total_cases = sum(cases)) %>%
+  pivot_wider(names_from = type, values_from = total_cases) %>%
+  arrange(date) %>%
+  mutate(active = confirmed - death - recovery) %>%
+  mutate(active_total = cumsum(active),
+         recovered_total = cumsum(recovery),
+         death_total = cumsum(death))
+tw_summary %>%
+  plot_ly(x = ~ date,
+          y = ~ active_total,
+          name = 'Active', 
+          fillcolor = '#1f77b4',
+          type = 'scatter',
+          mode = 'none', 
+          stackgroup = 'one') %>%
+  add_trace(y = ~ death_total, 
+            name = "Death",
+            fillcolor = '#E41317') %>%
+  add_trace(y = ~recovered_total, 
+            name = 'Recovered', 
+            fillcolor = 'forestgreen') %>%
+  layout(title = "Distribution of Covid19 Cases Worldwide",
+         legend = list(x = 0.1, y = 0.9),
+         yaxis = list(title = "Number of Cases"),
+         xaxis = list(title = "Source: Johns Hopkins University Center for Systems Science and Engineering"))
+```
+Taiwan shows no progress since the entirety of the graph shows just active cases. It is good that there are no death cases shown. However there are no recoveries either. So Taiwan seems to be like somewhere in between, balancing on the line between death and recovery.
+
+The total amount of active cases in Taiwan: `r sum(tw_summary$active_total)`
+
+
+Liberia:
+```{r echo = FALSE, message=FALSE}
+lib_summary <- coronavirus %>% 
+  filter(country == "Liberia") %>%
+  group_by(type, date) %>%
+  summarise(total_cases = sum(cases)) %>%
+  pivot_wider(names_from = type, values_from = total_cases) %>%
+  arrange(date) %>%
+  mutate(active = confirmed - death - recovery) %>%
+  mutate(active_total = cumsum(active),
+         recovered_total = cumsum(recovery),
+         death_total = cumsum(death))
+lib_summary %>%
+  plot_ly(x = ~ date,
+          y = ~ active_total,
+          name = 'Active', 
+          fillcolor = '#1f77b4',
+          type = 'scatter',
+          mode = 'none', 
+          stackgroup = 'one') %>%
+  add_trace(y = ~ death_total, 
+            name = "Death",
+            fillcolor = '#E41317') %>%
+  add_trace(y = ~recovered_total, 
+            name = 'Recovered', 
+            fillcolor = 'forestgreen') %>%
+  layout(title = "Distribution of Covid19 Cases Worldwide",
+         legend = list(x = 0.1, y = 0.9),
+         yaxis = list(title = "Number of Cases"),
+         xaxis = list(title = "Source: Johns Hopkins University Center for Systems Science and Engineering"))
+```
+Liberia is quite similar to Armenia and has done a relatively good job as well, however the active cases are more than the recovery cases.
+
+The total amount of active cases in Liberia: `r sum(lib_summary$active_total)`
+
+New Zealand:
+```{r echo = FALSE, message=FALSE}
+nz_summary <- coronavirus %>% 
+  filter(country == "New Zealand") %>%
+  group_by(type, date) %>%
+  summarise(total_cases = sum(cases)) %>%
+  pivot_wider(names_from = type, values_from = total_cases) %>%
+  arrange(date) %>%
+  mutate(active = confirmed - death - recovery) %>%
+  mutate(active_total = cumsum(active),
+         recovered_total = cumsum(recovery),
+         death_total = cumsum(death))
+nz_summary %>%
+  plot_ly(x = ~ date,
+          y = ~ active_total,
+          name = 'Active', 
+          fillcolor = '#1f77b4',
+          type = 'scatter',
+          mode = 'none', 
+          stackgroup = 'one') %>%
+  add_trace(y = ~ death_total, 
+            name = "Death",
+            fillcolor = '#E41317') %>%
+  add_trace(y = ~recovered_total, 
+            name = 'Recovered', 
+            fillcolor = 'forestgreen') %>%
+  layout(title = "Distribution of Covid19 Cases Worldwide",
+         legend = list(x = 0.1, y = 0.9),
+         yaxis = list(title = "Number of Cases"),
+         xaxis = list(title = "Source: Johns Hopkins University Center for Systems Science and Engineering"))
+```
+
+New Zealand's graph is quite similar if not the same as the one of Taiwan. Again, no progress. Just active cases.
+
+The total amount of active cases in New Zealand: `r sum(nz_summary$active_total)`
+
+The total amount of active cases in all countries altogether: `r sum(arm_summary$active_total) + sum(tw_summary$active_total) + sum(lib_summary$active_total) + sum(nz_summary$active_total)`
+
+Let's assign points to each country:<br>
+Armenia - `r ( sum(arm_summary$active_total) * 100 ) / (sum(arm_summary$active_total) + sum(tw_summary$active_total) + sum(lib_summary$active_total) + sum(nz_summary$active_total) )`
+
+Taiwan - `r ( sum(tw_summary$active_total) * 100 ) / (sum(arm_summary$active_total) + sum(tw_summary$active_total) + sum(lib_summary$active_total) + sum(nz_summary$active_total) )`
+
+Liberia - `r ( sum(lib_summary$active_total) * 100 ) / (sum(arm_summary$active_total) + sum(tw_summary$active_total) + sum(lib_summary$active_total) + sum(nz_summary$active_total) )`
+
+New Zealand - `r ( sum(nz_summary$active_total) * 100 ) / (sum(arm_summary$active_total) + sum(tw_summary$active_total) + sum(lib_summary$active_total) + sum(nz_summary$active_total) )`
+
+```{r echo = FALSE, message=FALSE}
+arm_point <- arm_point + ( sum(arm_summary$active_total) * 100 ) / (sum(arm_summary$active_total) + sum(tw_summary$active_total) + sum(lib_summary$active_total) + sum(nz_summary$active_total) )
+
+tw_point <- tw_point + ( sum(tw_summary$active_total) * 100 ) / (sum(arm_summary$active_total) + sum(tw_summary$active_total) + sum(lib_summary$active_total) + sum(nz_summary$active_total) )
+
+lib_point <- lib_point + ( sum(lib_summary$active_total) * 100 ) / (sum(arm_summary$active_total) + sum(tw_summary$active_total) + sum(lib_summary$active_total) + sum(nz_summary$active_total) )
+
+nz_point <- nz_point + ( sum(nz_summary$active_total) * 100 ) / (sum(arm_summary$active_total) + sum(tw_summary$active_total) + sum(lib_summary$active_total) + sum(nz_summary$active_total) )
+```
+
+There are seven rubrics based on which the countries' scores are evaluated. So if a given country did its best in each rubric, it would have received 700 as a score. This is not likely to happen. If all countries did their best in each rubric, they would have all received 700, which is much more unlikely.
+Now let's add up points from each rubric for each country:<br>
+
+Armenia - `r arm_point`/700
+Taiwan - `r tw_point`/700
+Liberia - `r lib_point`/700
+New Zealand - `r nz_point`/700
+
+So if we rank the countries based on score, we get the following order:
+
+1) Taiwan
+2) Armenia
+3) New Zealand
+4) Liberia
+
+This is it. Hope this research was informative!
